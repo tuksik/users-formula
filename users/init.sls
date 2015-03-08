@@ -25,6 +25,7 @@ include:
 {%- endif %}
 {%- endif %}
 
+
 {% for name, user in pillar.get('users', {}).items() if user.absent is not defined or not user.absent %}
 {%- if user == None -%}
 {%- set user = {} -%}
@@ -252,4 +253,31 @@ googleauth-{{ svc }}-{{ name }}:
 {{ group }}:
   group.absent
 {% endfor %}
+
+#Dotfiles
+{% if 'dotfiles' in user %}
+install_git:
+  pkg.installed:
+  - name: git
+  - name: zsh
+
+clone_dotfiles:
+  git.latest:
+    - name: user['dotfiles']
+    - rev: master
+    - target: {{ home }}/dotfiles
+    - user: user['gituser']
+    - submodules: True
+    - require:
+      - pkg: install_git
+
+install_dotfiles_if_changed:
+  cmd.run:
+    - name: user['dot_ins_cmd']
+    - cwd: '{{ home }}/dotfiles'
+    - user: {{ name }}
+    - onchanges:
+      - git: clone_dotfiles
+
+{% endif %}
 

@@ -279,5 +279,5 @@ install_dotfiles_if_changed:
     - onchanges:
       - git: clone_dotfiles
 
-{% endif %}
+{% endif -%}
 

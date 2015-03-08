@@ -1,4 +1,4 @@
-# vim: sts=2 ts=2 sw=2 et ai
+# vim: sts=:2 ts=2 sw=2 et ai
 {% from "users/map.jinja" import users with context %}
 {% set used_sudo = [] %}
 {% set used_googleauth = [] %}
@@ -255,7 +255,7 @@ googleauth-{{ svc }}-{{ name }}:
 {% endfor %}
 
 #Dotfiles
-{% if 'dotfiles' in user %}
+{% if 'dot_files' in user %}
 install_git:
   pkg.installed:
   - name: git
@@ -263,17 +263,17 @@ install_git:
 
 clone_dotfiles:
   git.latest:
-    - name: user['dotfiles']
+    - name: users:{{ name }}:dot_files:git_repo
     - rev: master
     - target: {{ home }}/dotfiles
-    - user: user['gituser']
+    - user: users:{{ name }}:dot_files:git_user
     - submodules: True
     - require:
       - pkg: install_git
 
 install_dotfiles_if_changed:
   cmd.run:
-    - name: user['dot_ins_cmd']
+    - name: users:{{ name }}:dot_files:bootstap
     - cwd: '{{ home }}/dotfiles'
     - user: {{ name }}
     - onchanges:
